@@ -8,7 +8,9 @@ title: 홈
 </div>
 
 {% assign books = site.brunchbooks | where: "layout", "book_index" %}
-{% assign genres = books | group_by: "genre" %}
+{% assign mags = site.magazines | where: "layout", "book_index" %}
+{% assign all_items = books | concat: mags %}
+{% assign genres = all_items | group_by: "genre" %}
 
 {% for g in genres %}
 <section class="genre-section">

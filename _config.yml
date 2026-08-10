@@ -6,11 +6,19 @@ collections:
   brunchbooks:
     output: true
     permalink: /:collection/:path/
+  magazines:
+    output: true
+    permalink: /:collection/:path/
 
 defaults:
   - scope:
       path: ""
       type: "brunchbooks"
+    values:
+      layout: "chapter"
+  - scope:
+      path: ""
+      type: "magazines"
     values:
       layout: "chapter"
 
