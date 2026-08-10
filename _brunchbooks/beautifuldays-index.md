@@ -32,7 +32,7 @@ permalink: /brunchbook/beautifuldays/
 - [11. 3yo와 4yo #저요?]({{ "/brunchbooks/beautifuldays/11/" | relative_url }})
 - [12. 김수한무 ]({{ "/brunchbooks/beautifuldays/12/" | relative_url }})
 - [13. F가 T에게 보내는 감사]({{ "/brunchbooks/beautifuldays/13/" | relative_url }})
-- [14. <작별하지 않는다>]({{ "/brunchbooks/beautifuldays/14/" | relative_url }})
+- [14. &lt;작별하지 않는다&gt;]({{ "/brunchbooks/beautifuldays/14/" | relative_url }})
 - [15. 인공지능, 새로운 희망 혹은 공포]({{ "/brunchbooks/beautifuldays/15/" | relative_url }})
 
 **추억하고 꿈꾸고 다시 살며**

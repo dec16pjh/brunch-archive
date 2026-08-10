@@ -4,13 +4,13 @@ layout: default
 <article class="chapter">
   <nav class="crumbs">
     <a href="{{ '/' | relative_url }}">홈</a> ·
-    <a href="{{ page.index_url | relative_url }}">{{ page.book }}</a>
+    <a href="{{ page.index_url | relative_url }}">{{ page.book | escape }}</a>
   </nav>
-  <p class="chapter-part">{{ page.part }}</p>
+  <p class="chapter-part">{{ page.part | escape }}</p>
   <p class="chapter-no">{{ page.chapter_no }}</p>
-  <h1 class="chapter-title">{{ page.title }}</h1>
+  <h1 class="chapter-title">{{ page.title | escape }}</h1>
   {% if page.subtitle and page.subtitle != "" %}
-  <p class="chapter-subtitle">{{ page.subtitle }}</p>
+  <p class="chapter-subtitle">{{ page.subtitle | escape }}</p>
   {% endif %}
 
   <div class="chapter-body">
@@ -19,10 +19,10 @@ layout: default
 
   <nav class="chapter-pager">
     {% if page.prev_url and page.prev_url != "" %}
-    <a class="pager-prev" href="{{ page.prev_url | relative_url }}">← {{ page.prev_title }}</a>
+    <a class="pager-prev" href="{{ page.prev_url | relative_url }}">← {{ page.prev_title | escape }}</a>
     {% else %}<span></span>{% endif %}
     {% if page.next_url and page.next_url != "" %}
-    <a class="pager-next" href="{{ page.next_url | relative_url }}">{{ page.next_title }} →</a>
+    <a class="pager-next" href="{{ page.next_url | relative_url }}">{{ page.next_title | escape }} →</a>
     {% endif %}
   </nav>
 </article>

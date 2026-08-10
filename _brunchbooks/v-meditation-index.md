@@ -35,7 +35,7 @@ permalink: /brunchbook/v-meditation/
 
 **명상을 마치며**
 
-- [11. 명상 중 떠오른 망상들, 회상&]({{ "/brunchbooks/v-meditation/11/" | relative_url }})
+- [11. 명상 중 떠오른 망상들, 회상&amp;]({{ "/brunchbooks/v-meditation/11/" | relative_url }})
 - [12. 명상 센터를 마치고]({{ "/brunchbooks/v-meditation/12/" | relative_url }})
 - [13. 내가 이해한 명상]({{ "/brunchbooks/v-meditation/13/" | relative_url }})
 

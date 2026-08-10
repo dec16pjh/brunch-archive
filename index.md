@@ -14,12 +14,12 @@ title: 홈
 
 {% for g in genres %}
 <section class="genre-section">
-  <h2 class="genre-title">{{ g.name }}</h2>
+  <h2 class="genre-title">{{ g.name | escape }}</h2>
   <ul class="book-list">
     {% for b in g.items %}
     <li>
-      <a href="{{ b.url | relative_url }}">{{ b.title }}</a>
-      <span class="book-list-meta">{{ b.author }} · {{ b.release_date }}</span>
+      <a href="{{ b.url | relative_url }}">{{ b.title | escape }}</a>
+      <span class="book-list-meta">{{ b.author | escape }} · {{ b.release_date }}</span>
     </li>
     {% endfor %}
   </ul>

@@ -17,10 +17,10 @@ permalink: /brunchbook/myhawaii/
 - [02. Day 1 토랜스에 돌아오다]({{ "/brunchbooks/myhawaii/02/" | relative_url }})
 - [03. Day 2 에너하임 디즈니랜드  ]({{ "/brunchbooks/myhawaii/03/" | relative_url }})
 - [04. Day 3 추억을 따라서 ]({{ "/brunchbooks/myhawaii/04/" | relative_url }})
-- [05. Day 4 쏠뱅 & 피스모비치]({{ "/brunchbooks/myhawaii/05/" | relative_url }})
+- [05. Day 4 쏠뱅 &amp; 피스모비치]({{ "/brunchbooks/myhawaii/05/" | relative_url }})
 - [06. Day 5 까멜 바이 더 씨]({{ "/brunchbooks/myhawaii/06/" | relative_url }})
 - [07. Day 6 쎄븐틴 마일즈 드라이브]({{ "/brunchbooks/myhawaii/07/" | relative_url }})
-- [08. Day 7 센프란시스코 피어 39 & 소살리토]({{ "/brunchbooks/myhawaii/08/" | relative_url }})
+- [08. Day 7 센프란시스코 피어 39 &amp; 소살리토]({{ "/brunchbooks/myhawaii/08/" | relative_url }})
 
 **우리의 하와이 마우이에서**
 
