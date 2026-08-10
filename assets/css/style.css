@@ -1,0 +1,143 @@
+:root {
+  --fg: #2a2a2a;
+  --muted: #8a8a8a;
+  --bg: #fdfcfa;
+  --accent: #a67c52;
+  --border: #eee;
+  --max-w: 680px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Nanum Myeongjo", "Noto Serif KR", Georgia, serif;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+.site-header {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 40px 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.site-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--fg);
+  text-decoration: none;
+}
+.site-desc {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 6px 0 0;
+}
+
+.content {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 30px 20px 60px;
+}
+
+.site-footer {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 20px 20px 60px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+.site-footer a { color: var(--muted); }
+
+/* home */
+.home-intro { color: var(--muted); margin-bottom: 20px; }
+.genre-section { margin-bottom: 34px; }
+.genre-title {
+  font-size: 1.1rem;
+  border-left: 4px solid var(--accent);
+  padding-left: 10px;
+  margin-bottom: 12px;
+}
+.book-list { list-style: none; padding: 0; margin: 0; }
+.book-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.book-list a { color: var(--fg); font-size: 1.02rem; text-decoration: none; }
+.book-list a:hover { color: var(--accent); }
+.book-list-meta { color: var(--muted); font-size: 0.8rem; }
+
+/* book index */
+.book-title { font-size: 1.8rem; margin-bottom: 4px; }
+.book-meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
+.book-intro { margin-bottom: 20px; }
+.book-intro h2 {
+  font-size: 1.1rem;
+  margin-top: 32px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+}
+.book-intro ul { list-style: none; padding: 0; }
+.book-intro li a {
+  display: block;
+  padding: 7px 0 7px 6px;
+  color: var(--fg);
+  text-decoration: none;
+}
+.book-intro li a:hover { color: var(--accent); }
+.book-intro p strong { color: var(--fg); }
+
+/* chapter */
+.crumbs { font-size: 0.8rem; color: var(--muted); margin-bottom: 18px; }
+.crumbs a { color: var(--muted); }
+.chapter-part { color: var(--accent); font-size: 0.82rem; letter-spacing: 0.02em; margin-bottom: 2px; }
+.chapter-no { color: var(--muted); font-size: 0.8rem; margin: 0; }
+.chapter-title { font-size: 1.6rem; margin: 4px 0 4px; }
+.chapter-subtitle { color: var(--muted); font-size: 0.95rem; margin-bottom: 28px; }
+
+.chapter-body { font-size: 1.03rem; }
+.chapter-body p { margin: 0 0 1.1em; text-align: justify; }
+.chapter-body blockquote {
+  margin: 1.4em 0;
+  padding: 4px 0 4px 18px;
+  border-left: 3px solid var(--accent);
+  color: #666;
+  font-size: 0.96rem;
+}
+.chapter-body img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.6em auto;
+  border-radius: 4px;
+}
+
+.chapter-pager {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+.chapter-pager a { color: var(--fg); text-decoration: none; max-width: 45%; }
+.chapter-pager a:hover { color: var(--accent); }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg: #e8e4dc;
+    --muted: #8f8f8f;
+    --bg: #16151a;
+    --border: #2a2a30;
+    --accent: #d3a468;
+  }
+  .chapter-body blockquote { color: #aaa; }
+}

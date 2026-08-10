@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+    <p class="site-desc">{{ site.description }}</p>
+  </header>
+  <main class="content">
+    {{ content }}
+  </main>
+  <footer class="site-footer">
+    <p>원문 출처: <a href="https://brunch.co.kr/@freeist" target="_blank" rel="noopener">brunch.co.kr/@freeist</a></p>
+  </footer>
+</body>
+</html>

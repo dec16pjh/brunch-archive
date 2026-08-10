@@ -1,0 +1,22 @@
+title: 박종호의 브런치 아카이브
+description: 브런치 서랍과 브런치북을 모아둔 개인 아카이브
+lang: ko
+
+collections:
+  brunchbooks:
+    output: true
+    permalink: /:collection/:path/
+
+defaults:
+  - scope:
+      path: ""
+      type: "brunchbooks"
+    values:
+      layout: "chapter"
+
+markdown: kramdown
+kramdown:
+  input: GFM
+
+exclude:
+  - README.md

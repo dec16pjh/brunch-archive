@@ -1,0 +1,11 @@
+---
+layout: default
+---
+<article class="book-index">
+  <nav class="crumbs"><a href="{{ '/' | relative_url }}">홈</a> · {{ page.genre }}</nav>
+  <h1 class="book-title">{{ page.title }}</h1>
+  <p class="book-meta">{{ page.author }} · {{ page.release_date }}</p>
+  <div class="book-intro">
+    {{ content }}
+  </div>
+</article>
