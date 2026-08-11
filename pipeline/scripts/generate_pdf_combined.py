@@ -25,16 +25,17 @@ pdfmetrics.registerFont(TTFont(FONT_BOLD, os.path.join(FONT_DIR, "HANBatangB.ttf
 
 # 신국판 (Korean standard trade size)
 PAGE_W, PAGE_H = 152 * mm, 225 * mm
-MARGIN_L, MARGIN_R = 20 * mm, 20 * mm
-MARGIN_T, MARGIN_B = 25 * mm, 28 * mm
+MARGIN_L, MARGIN_R = 21 * mm, 21 * mm
+MARGIN_T, MARGIN_B = 26 * mm, 30 * mm
 AUTHOR = "박종호"
 
 FULL_ORDER = ["mypicturedairy", "mypicturedairy2", "momochihama", "myhawaii", "ohashi",
               "tium", "v-meditation", "grit2success", "sosohan", "beautifuldays"]
 
 VOLUMES = [
-    {"title": "다시 틈사이로 1", "books": FULL_ORDER[0:4], "start_no": 1},
-    {"title": "다시 틈사이로 2", "books": FULL_ORDER[4:10], "start_no": 5},
+    {"title": "다시 틈사이로 1", "books": FULL_ORDER[0:3], "start_no": 1},
+    {"title": "다시 틈사이로 2", "books": FULL_ORDER[3:6], "start_no": 4},
+    {"title": "다시 틈사이로 3", "books": FULL_ORDER[6:10], "start_no": 7},
 ]
 
 COPYRIGHT_LINES = [
@@ -51,10 +52,10 @@ COPYRIGHT_LINES = [
 DEDICATION = "아름다운 시절을 함께해준\n사랑하는 이들에게 드립니다."
 
 # ---------- styles ----------
-style_body = ParagraphStyle("body", fontName=FONT_REG, fontSize=10.6,
-                             leading=18.5, alignment=TA_JUSTIFY, spaceAfter=10, firstLineIndent=14)
-style_quote = ParagraphStyle("quote", fontName=FONT_REG, fontSize=10.0,
-                              leading=17, alignment=TA_JUSTIFY, spaceAfter=10,
+style_body = ParagraphStyle("body", fontName=FONT_REG, fontSize=11,
+                             leading=19.5, alignment=TA_JUSTIFY, spaceAfter=11, firstLineIndent=15)
+style_quote = ParagraphStyle("quote", fontName=FONT_REG, fontSize=10.3,
+                              leading=18, alignment=TA_JUSTIFY, spaceAfter=11,
                               leftIndent=24, rightIndent=12, textColor=colors.HexColor("#555555"))
 style_title_cover = ParagraphStyle("title_cover", fontName=FONT_BOLD, fontSize=27,
                                     alignment=TA_CENTER, leading=36)
