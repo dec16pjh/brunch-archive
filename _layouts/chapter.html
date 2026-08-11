@@ -3,7 +3,23 @@ layout: default
 ---
 {% assign tts_pilot_pages = "/brunchbooks/tium/10/" | split: "," %}
 {% if tts_pilot_pages contains page.url %}
-<button id="tts-btn" class="tts-btn" type="button" title="본문 읽어주기" aria-label="본문 읽어주기">🔊</button>
+<div id="tts-widget" class="tts-widget">
+  <div class="tts-controls">
+    <button id="tts-btn" class="tts-btn" type="button" title="본문 읽어주기" aria-label="본문 읽어주기">🔊</button>
+    <button id="tts-settings-btn" class="tts-settings-btn" type="button" title="읽기 설정" aria-label="읽기 설정">⚙</button>
+  </div>
+  <div id="tts-settings-panel" class="tts-settings-panel" hidden>
+    <label class="tts-setting-row">
+      <span>속도</span>
+      <input id="tts-rate" type="range" min="0.5" max="2" step="0.1" value="1">
+      <span id="tts-rate-val">1.0x</span>
+    </label>
+    <label class="tts-setting-row">
+      <span>목소리</span>
+      <select id="tts-voice"></select>
+    </label>
+  </div>
+</div>
 {% endif %}
 <article class="chapter">
   <nav class="crumbs">
@@ -40,6 +56,68 @@ layout: default
   var synth = window.speechSynthesis;
   var speaking = false;
 
+  var settingsBtn = document.getElementById('tts-settings-btn');
+  var settingsPanel = document.getElementById('tts-settings-panel');
+  var rateInput = document.getElementById('tts-rate');
+  var rateVal = document.getElementById('tts-rate-val');
+  var voiceSelect = document.getElementById('tts-voice');
+
+  var rate = parseFloat(localStorage.getItem('tts_rate')) || 1.0;
+  var savedVoiceKey = localStorage.getItem('tts_voice') || '';
+  var voices = [];
+
+  rateInput.value = rate;
+  rateVal.textContent = rate.toFixed(1) + 'x';
+
+  function voiceKey(v) { return v.name + '|' + v.lang; }
+
+  function populateVoices() {
+    voices = synth.getVoices();
+    if (!voices.length) return;
+    var korean = voices.filter(function (v) { return v.lang && v.lang.toLowerCase().indexOf('ko') === 0; });
+    var others = voices.filter(function (v) { return korean.indexOf(v) === -1; });
+    var ordered = korean.concat(others);
+
+    voiceSelect.innerHTML = '';
+    ordered.forEach(function (v) {
+      var opt = document.createElement('option');
+      opt.value = voiceKey(v);
+      opt.textContent = v.name + ' (' + v.lang + ')';
+      voiceSelect.appendChild(opt);
+    });
+
+    var match = ordered.some(function (v) { return voiceKey(v) === savedVoiceKey; });
+    if (match) {
+      voiceSelect.value = savedVoiceKey;
+    } else if (korean.length) {
+      voiceSelect.value = voiceKey(korean[0]);
+    }
+  }
+
+  populateVoices();
+  if ('onvoiceschanged' in synth) {
+    synth.addEventListener('voiceschanged', populateVoices);
+  }
+
+  function getSelectedVoice() {
+    var key = voiceSelect.value;
+    return voices.filter(function (v) { return voiceKey(v) === key; })[0] || null;
+  }
+
+  rateInput.addEventListener('input', function () {
+    rate = parseFloat(rateInput.value);
+    rateVal.textContent = rate.toFixed(1) + 'x';
+    localStorage.setItem('tts_rate', rate);
+  });
+
+  voiceSelect.addEventListener('change', function () {
+    localStorage.setItem('tts_voice', voiceSelect.value);
+  });
+
+  settingsBtn.addEventListener('click', function () {
+    settingsPanel.hidden = !settingsPanel.hidden;
+  });
+
   function getText() {
     var parts = [];
     var title = document.querySelector('.chapter-title');
@@ -61,8 +139,10 @@ layout: default
     if (!speaking) {
       synth.cancel();
       var utter = new SpeechSynthesisUtterance(getText());
-      utter.lang = 'ko-KR';
-      utter.rate = 1.0;
+      var voice = getSelectedVoice();
+      utter.lang = voice ? voice.lang : 'ko-KR';
+      if (voice) utter.voice = voice;
+      utter.rate = rate;
       utter.onend = function () { speaking = false; render(); };
       utter.onerror = function () { speaking = false; render(); };
       synth.speak(utter);
