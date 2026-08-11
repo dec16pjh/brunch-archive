@@ -169,22 +169,6 @@ body {
 .tts-setting-row span:first-child { color: var(--muted); flex-shrink: 0; width: 34px; }
 .tts-setting-row input[type="range"] { flex: 1; min-width: 0; }
 .tts-setting-row #tts-rate-val { width: 34px; flex-shrink: 0; text-align: right; color: var(--muted); }
-.tts-setting-row select {
-  flex: 1;
-  min-width: 0;
-  background: var(--bg);
-  color: var(--fg);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 3px 4px;
-  font-size: 0.8rem;
-}
-.tts-voice-note {
-  margin: 2px 0 0;
-  color: var(--muted);
-  font-size: 0.72rem;
-  text-align: right;
-}
 
 .chapter-pager {
   display: flex;

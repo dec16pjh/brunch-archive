@@ -14,11 +14,6 @@ layout: default
       <input id="tts-rate" type="range" min="0.5" max="2" step="0.1" value="1">
       <span id="tts-rate-val">1.0x</span>
     </label>
-    <label class="tts-setting-row">
-      <span>목소리</span>
-      <select id="tts-voice"></select>
-    </label>
-    <p id="tts-voice-note" class="tts-voice-note"></p>
   </div>
 </div>
 {% endif %}
@@ -61,74 +56,16 @@ layout: default
   var settingsPanel = document.getElementById('tts-settings-panel');
   var rateInput = document.getElementById('tts-rate');
   var rateVal = document.getElementById('tts-rate-val');
-  var voiceSelect = document.getElementById('tts-voice');
 
   var rate = parseFloat(localStorage.getItem('tts_rate')) || 1.0;
-  var savedVoiceKey = localStorage.getItem('tts_voice') || '';
-  var voices = [];
 
   rateInput.value = rate;
   rateVal.textContent = rate.toFixed(1) + 'x';
-
-  function voiceKey(v) { return v.name + '|' + v.lang; }
-
-  var FEMALE_HINTS = ['heami', 'yuna', 'sun-hi', 'sunhi', '유나', '하미', '선희', 'female', 'koc'];
-  var MALE_HINTS = ['injoon', 'in-joon', 'minjun', 'minsu', '인준', '민준', '민수', 'male', 'kod'];
-  function guessTone(name) {
-    var n = name.toLowerCase();
-    if (FEMALE_HINTS.some(function (k) { return n.indexOf(k) >= 0; })) return '여성 · ';
-    if (MALE_HINTS.some(function (k) { return n.indexOf(k) >= 0; })) return '남성 · ';
-    return '';
-  }
-
-  function populateVoices() {
-    voices = synth.getVoices();
-    if (!voices.length) return;
-    var korean = voices.filter(function (v) { return v.lang && v.lang.toLowerCase().indexOf('ko') === 0; });
-    var others = voices.filter(function (v) { return korean.indexOf(v) === -1; });
-    var ordered = korean.concat(others);
-
-    voiceSelect.innerHTML = '';
-    ordered.forEach(function (v) {
-      var opt = document.createElement('option');
-      opt.value = voiceKey(v);
-      opt.textContent = guessTone(v.name) + v.name + ' (' + v.lang + ')';
-      voiceSelect.appendChild(opt);
-    });
-
-    var match = ordered.some(function (v) { return voiceKey(v) === savedVoiceKey; });
-    if (match) {
-      voiceSelect.value = savedVoiceKey;
-    } else if (korean.length) {
-      voiceSelect.value = voiceKey(korean[0]);
-    }
-
-    var note = document.getElementById('tts-voice-note');
-    if (note) {
-      note.textContent = korean.length > 1
-        ? '기기에 설치된 한국어 목소리 ' + korean.length + '개 중 선택 가능'
-        : '이 기기/브라우저에는 한국어 목소리가 1개만 설치되어 있습니다';
-    }
-  }
-
-  populateVoices();
-  if ('onvoiceschanged' in synth) {
-    synth.addEventListener('voiceschanged', populateVoices);
-  }
-
-  function getSelectedVoice() {
-    var key = voiceSelect.value;
-    return voices.filter(function (v) { return voiceKey(v) === key; })[0] || null;
-  }
 
   rateInput.addEventListener('input', function () {
     rate = parseFloat(rateInput.value);
     rateVal.textContent = rate.toFixed(1) + 'x';
     localStorage.setItem('tts_rate', rate);
-  });
-
-  voiceSelect.addEventListener('change', function () {
-    localStorage.setItem('tts_voice', voiceSelect.value);
   });
 
   settingsBtn.addEventListener('click', function () {
@@ -156,9 +93,7 @@ layout: default
     if (!speaking) {
       synth.cancel();
       var utter = new SpeechSynthesisUtterance(getText());
-      var voice = getSelectedVoice();
-      utter.lang = voice ? voice.lang : 'ko-KR';
-      if (voice) utter.voice = voice;
+      utter.lang = 'ko-KR';
       utter.rate = rate;
       utter.onend = function () { speaking = false; render(); };
       utter.onerror = function () { speaking = false; render(); };
