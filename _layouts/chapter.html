@@ -1,6 +1,10 @@
 ---
 layout: default
 ---
+{% assign tts_pilot_pages = "/brunchbooks/tium/10/" | split: "," %}
+{% if tts_pilot_pages contains page.url %}
+<button id="tts-btn" class="tts-btn" type="button" title="본문 읽어주기" aria-label="본문 읽어주기">🔊</button>
+{% endif %}
 <article class="chapter">
   <nav class="crumbs">
     <a href="{{ '/' | relative_url }}">홈</a> ·
@@ -26,3 +30,51 @@ layout: default
     {% endif %}
   </nav>
 </article>
+
+<script>
+(function () {
+  var btn = document.getElementById('tts-btn');
+  if (!btn) return;
+  if (!('speechSynthesis' in window)) { btn.style.display = 'none'; return; }
+
+  var synth = window.speechSynthesis;
+  var speaking = false;
+
+  function getText() {
+    var parts = [];
+    var title = document.querySelector('.chapter-title');
+    var subtitle = document.querySelector('.chapter-subtitle');
+    var body = document.querySelector('.chapter-body');
+    if (title) parts.push(title.innerText);
+    if (subtitle) parts.push(subtitle.innerText);
+    if (body) parts.push(body.innerText);
+    return parts.join('.  ');
+  }
+
+  function render() {
+    if (!speaking) { btn.textContent = '🔊'; btn.title = '본문 읽어주기'; }
+    else if (synth.paused) { btn.textContent = '▶'; btn.title = '이어 읽기'; }
+    else { btn.textContent = '⏸'; btn.title = '일시정지'; }
+  }
+
+  btn.addEventListener('click', function () {
+    if (!speaking) {
+      synth.cancel();
+      var utter = new SpeechSynthesisUtterance(getText());
+      utter.lang = 'ko-KR';
+      utter.rate = 1.0;
+      utter.onend = function () { speaking = false; render(); };
+      utter.onerror = function () { speaking = false; render(); };
+      synth.speak(utter);
+      speaking = true;
+    } else if (synth.paused) {
+      synth.resume();
+    } else {
+      synth.pause();
+    }
+    render();
+  });
+
+  window.addEventListener('beforeunload', function () { synth.cancel(); });
+})();
+</script>
