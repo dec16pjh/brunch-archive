@@ -51,6 +51,8 @@ layout: default
 
   var synth = window.speechSynthesis;
   var speaking = false;
+  var userPaused = false;
+  var watchdogId = null;
 
   var settingsBtn = document.getElementById('tts-settings-btn');
   var settingsPanel = document.getElementById('tts-settings-panel');
@@ -85,28 +87,59 @@ layout: default
 
   function render() {
     if (!speaking) { btn.textContent = '🔊'; btn.title = '본문 읽어주기'; }
-    else if (synth.paused) { btn.textContent = '▶'; btn.title = '이어 읽기'; }
+    else if (userPaused) { btn.textContent = '▶'; btn.title = '이어 읽기'; }
     else { btn.textContent = '⏸'; btn.title = '일시정지'; }
+  }
+
+  function stopWatchdog() {
+    if (watchdogId) { clearInterval(watchdogId); watchdogId = null; }
+  }
+
+  // Chrome silently stops long utterances after ~15s without firing
+  // onend/onerror, leaving playback stuck. Nudging pause/resume
+  // periodically keeps the engine alive so it doesn't die mid-read.
+  function startWatchdog() {
+    stopWatchdog();
+    watchdogId = setInterval(function () {
+      if (!speaking || userPaused) return;
+      synth.pause();
+      synth.resume();
+    }, 10000);
+  }
+
+  function stop() {
+    stopWatchdog();
+    speaking = false;
+    userPaused = false;
+    render();
+  }
+
+  function start() {
+    synth.cancel();
+    var utter = new SpeechSynthesisUtterance(getText());
+    utter.lang = 'ko-KR';
+    utter.rate = rate;
+    utter.onend = stop;
+    utter.onerror = stop;
+    synth.speak(utter);
+    speaking = true;
+    userPaused = false;
+    startWatchdog();
   }
 
   btn.addEventListener('click', function () {
     if (!speaking) {
-      synth.cancel();
-      var utter = new SpeechSynthesisUtterance(getText());
-      utter.lang = 'ko-KR';
-      utter.rate = rate;
-      utter.onend = function () { speaking = false; render(); };
-      utter.onerror = function () { speaking = false; render(); };
-      synth.speak(utter);
-      speaking = true;
-    } else if (synth.paused) {
+      start();
+    } else if (userPaused) {
+      userPaused = false;
       synth.resume();
     } else {
+      userPaused = true;
       synth.pause();
     }
     render();
   });
 
-  window.addEventListener('beforeunload', function () { synth.cancel(); });
+  window.addEventListener('beforeunload', function () { stopWatchdog(); synth.cancel(); });
 })();
 </script>
