@@ -179,6 +179,12 @@ body {
   padding: 3px 4px;
   font-size: 0.8rem;
 }
+.tts-voice-note {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-align: right;
+}
 
 .chapter-pager {
   display: flex;

@@ -18,6 +18,7 @@ layout: default
       <span>목소리</span>
       <select id="tts-voice"></select>
     </label>
+    <p id="tts-voice-note" class="tts-voice-note"></p>
   </div>
 </div>
 {% endif %}
@@ -71,6 +72,15 @@ layout: default
 
   function voiceKey(v) { return v.name + '|' + v.lang; }
 
+  var FEMALE_HINTS = ['heami', 'yuna', 'sun-hi', 'sunhi', '유나', '하미', '선희', 'female', 'koc'];
+  var MALE_HINTS = ['injoon', 'in-joon', 'minjun', 'minsu', '인준', '민준', '민수', 'male', 'kod'];
+  function guessTone(name) {
+    var n = name.toLowerCase();
+    if (FEMALE_HINTS.some(function (k) { return n.indexOf(k) >= 0; })) return '여성 · ';
+    if (MALE_HINTS.some(function (k) { return n.indexOf(k) >= 0; })) return '남성 · ';
+    return '';
+  }
+
   function populateVoices() {
     voices = synth.getVoices();
     if (!voices.length) return;
@@ -82,7 +92,7 @@ layout: default
     ordered.forEach(function (v) {
       var opt = document.createElement('option');
       opt.value = voiceKey(v);
-      opt.textContent = v.name + ' (' + v.lang + ')';
+      opt.textContent = guessTone(v.name) + v.name + ' (' + v.lang + ')';
       voiceSelect.appendChild(opt);
     });
 
@@ -91,6 +101,13 @@ layout: default
       voiceSelect.value = savedVoiceKey;
     } else if (korean.length) {
       voiceSelect.value = voiceKey(korean[0]);
+    }
+
+    var note = document.getElementById('tts-voice-note');
+    if (note) {
+      note.textContent = korean.length > 1
+        ? '기기에 설치된 한국어 목소리 ' + korean.length + '개 중 선택 가능'
+        : '이 기기/브라우저에는 한국어 목소리가 1개만 설치되어 있습니다';
     }
   }
 
