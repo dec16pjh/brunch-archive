@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os, json, shutil, datetime
+import os, json, shutil, datetime, re
 
 base = os.path.dirname(__file__)
 DATA_DIR = os.path.join(base, "full_data")
@@ -17,6 +17,22 @@ def fm_escape(s):
 
 def html_escape(s):
     return (s or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def escape_md_leading(line):
+    # kramdown reads a line-start "1. ", "- ", "* ", "+ ", "# " as a list/heading marker.
+    # Escape so the original character shows literally instead of being parsed as markdown.
+    m = re.match(r"^(\s*)(\d+)\.(\s)", line)
+    if m:
+        return f"{m.group(1)}{m.group(2)}\\.{m.group(3)}{line[m.end():]}"
+    m = re.match(r"^(\s*)([-*+#])(\s)", line)
+    if m:
+        return f"{m.group(1)}\\{m.group(2)}{m.group(3)}{line[m.end():]}"
+    return line
+
+
+def escape_md_block(text):
+    return "\n".join(escape_md_leading(l) for l in text.split("\n"))
 
 
 def fmt_date(ts):
@@ -41,6 +57,7 @@ def block_to_md(block):
     text = html_escape(block.get("text", ""))
     if not text.strip():
         return ""
+    text = escape_md_block(text)
     if block["type"] == "quote":
         lines = text.split("\n")
         return "\n".join(f"> {l}" for l in lines)
