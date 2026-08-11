@@ -53,6 +53,10 @@ layout: default
   var speaking = false;
   var userPaused = false;
   var watchdogId = null;
+  var fullText = '';
+  var offset = 0;
+  var lastBoundary = 0;
+  var currentUtter = null;
 
   var settingsBtn = document.getElementById('tts-settings-btn');
   var settingsPanel = document.getElementById('tts-settings-panel');
@@ -68,6 +72,8 @@ layout: default
     rate = parseFloat(rateInput.value);
     rateVal.textContent = rate.toFixed(1) + 'x';
     localStorage.setItem('tts_rate', rate);
+    // apply the new speed right away if currently reading (not paused)
+    if (speaking && !userPaused) speakFrom(lastBoundary);
   });
 
   settingsBtn.addEventListener('click', function () {
@@ -95,15 +101,18 @@ layout: default
     if (watchdogId) { clearInterval(watchdogId); watchdogId = null; }
   }
 
-  // Chrome silently stops long utterances after ~15s without firing
-  // onend/onerror, leaving playback stuck. Nudging pause/resume
-  // periodically keeps the engine alive so it doesn't die mid-read.
+  // Chrome's speechSynthesis.pause()/resume() is unreliable -- resume()
+  // often fails to continue playback, and a paused utterance can't pick
+  // up a rate change anyway. So instead of pause/resume, we track the
+  // last spoken position (via the 'boundary' event) and always continue
+  // by cancelling and re-speaking the remaining text as a fresh
+  // utterance. This also doubles as a keepalive against Chrome silently
+  // stalling long utterances after ~15s without firing onend/onerror.
   function startWatchdog() {
     stopWatchdog();
     watchdogId = setInterval(function () {
       if (!speaking || userPaused) return;
-      synth.pause();
-      synth.resume();
+      speakFrom(lastBoundary);
     }, 10000);
   }
 
@@ -111,33 +120,49 @@ layout: default
     stopWatchdog();
     speaking = false;
     userPaused = false;
+    currentUtter = null;
     render();
   }
 
-  function start() {
-    synth.cancel();
-    var utter = new SpeechSynthesisUtterance(getText());
+  function speakFrom(startOffset) {
+    offset = startOffset;
+    lastBoundary = startOffset;
+    var text = fullText.slice(startOffset);
+    if (!text) { stop(); return; }
+    var utter = new SpeechSynthesisUtterance(text);
     utter.lang = 'ko-KR';
     utter.rate = rate;
-    utter.onend = stop;
-    utter.onerror = stop;
+    utter.addEventListener('boundary', function (e) {
+      if (currentUtter === utter) lastBoundary = offset + e.charIndex;
+    });
+    utter.onend = function () { if (currentUtter === utter) stop(); };
+    utter.onerror = function () { if (currentUtter === utter) stop(); };
+    currentUtter = utter;
+    synth.cancel();
     synth.speak(utter);
     speaking = true;
     userPaused = false;
     startWatchdog();
+    render();
+  }
+
+  function start() {
+    fullText = getText();
+    speakFrom(0);
   }
 
   btn.addEventListener('click', function () {
     if (!speaking) {
       start();
     } else if (userPaused) {
-      userPaused = false;
-      synth.resume();
+      speakFrom(lastBoundary);
     } else {
+      stopWatchdog();
+      synth.cancel();
+      currentUtter = null;
       userPaused = true;
-      synth.pause();
+      render();
     }
-    render();
   });
 
   window.addEventListener('beforeunload', function () { stopWatchdog(); synth.cancel(); });
