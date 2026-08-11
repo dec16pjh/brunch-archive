@@ -53,9 +53,8 @@ layout: default
   var speaking = false;
   var userPaused = false;
   var watchdogId = null;
-  var fullText = '';
-  var offset = 0;
-  var lastBoundary = 0;
+  var chunks = [];
+  var chunkIndex = 0;
   var currentUtter = null;
 
   var settingsBtn = document.getElementById('tts-settings-btn');
@@ -72,8 +71,8 @@ layout: default
     rate = parseFloat(rateInput.value);
     rateVal.textContent = rate.toFixed(1) + 'x';
     localStorage.setItem('tts_rate', rate);
-    // apply the new speed right away if currently reading (not paused)
-    if (speaking && !userPaused) speakFrom(lastBoundary);
+    // apply the new speed right away, re-reading the current sentence
+    if (speaking && !userPaused) speakChunk(chunkIndex);
   });
 
   settingsBtn.addEventListener('click', function () {
@@ -91,6 +90,27 @@ layout: default
     return parts.join('.  ');
   }
 
+  // Split into short, sentence-sized chunks so pausing loses at most one
+  // sentence of progress instead of the whole article, and no single
+  // utterance runs long enough to trip Chrome's silent-stall bug on long
+  // speech. Resume position is tracked by chunk index rather than the
+  // 'boundary' event, which many voices never fire.
+  function splitChunks(text) {
+    var sentences = text.split(/(?<=[.!?\n])\s+/).filter(function (s) { return s.trim() !== ''; });
+    var result = [];
+    sentences.forEach(function (s) {
+      if (s.length <= 120) { result.push(s); return; }
+      var pieces = s.split(/(?<=,)\s+/);
+      var buf = '';
+      pieces.forEach(function (p) {
+        if (buf && (buf + ' ' + p).length > 120) { result.push(buf); buf = p; }
+        else { buf = buf ? buf + ' ' + p : p; }
+      });
+      if (buf) result.push(buf);
+    });
+    return result;
+  }
+
   function render() {
     if (!speaking) { btn.textContent = '🔊'; btn.title = '본문 읽어주기'; }
     else if (userPaused) { btn.textContent = '▶'; btn.title = '이어 읽기'; }
@@ -102,18 +122,14 @@ layout: default
   }
 
   // Chrome's speechSynthesis.pause()/resume() is unreliable -- resume()
-  // often fails to continue playback, and a paused utterance can't pick
-  // up a rate change anyway. So instead of pause/resume, we track the
-  // last spoken position (via the 'boundary' event) and always continue
-  // by cancelling and re-speaking the remaining text as a fresh
-  // utterance. This also doubles as a keepalive against Chrome silently
-  // stalling long utterances after ~15s without firing onend/onerror.
+  // often fails to continue playback. As a safety net, if a chunk somehow
+  // stalls without firing onend/onerror, restart it.
   function startWatchdog() {
     stopWatchdog();
     watchdogId = setInterval(function () {
       if (!speaking || userPaused) return;
-      speakFrom(lastBoundary);
-    }, 10000);
+      speakChunk(chunkIndex);
+    }, 12000);
   }
 
   function stop() {
@@ -124,18 +140,13 @@ layout: default
     render();
   }
 
-  function speakFrom(startOffset) {
-    offset = startOffset;
-    lastBoundary = startOffset;
-    var text = fullText.slice(startOffset);
-    if (!text) { stop(); return; }
-    var utter = new SpeechSynthesisUtterance(text);
+  function speakChunk(idx) {
+    if (idx >= chunks.length) { stop(); return; }
+    chunkIndex = idx;
+    var utter = new SpeechSynthesisUtterance(chunks[idx]);
     utter.lang = 'ko-KR';
     utter.rate = rate;
-    utter.addEventListener('boundary', function (e) {
-      if (currentUtter === utter) lastBoundary = offset + e.charIndex;
-    });
-    utter.onend = function () { if (currentUtter === utter) stop(); };
+    utter.onend = function () { if (currentUtter === utter) speakChunk(idx + 1); };
     utter.onerror = function () { if (currentUtter === utter) stop(); };
     currentUtter = utter;
     synth.cancel();
@@ -147,19 +158,19 @@ layout: default
   }
 
   function start() {
-    fullText = getText();
-    speakFrom(0);
+    chunks = splitChunks(getText());
+    speakChunk(0);
   }
 
   btn.addEventListener('click', function () {
     if (!speaking) {
       start();
     } else if (userPaused) {
-      speakFrom(lastBoundary);
+      speakChunk(chunkIndex);
     } else {
       stopWatchdog();
-      synth.cancel();
       currentUtter = null;
+      synth.cancel();
       userPaused = true;
       render();
     }
