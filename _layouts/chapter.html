@@ -1,8 +1,6 @@
 ---
 layout: default
 ---
-{% assign tts_pilot_pages = "/brunchbooks/tium/10/" | split: "," %}
-{% if tts_pilot_pages contains page.url %}
 <div id="tts-widget" class="tts-widget">
   <div class="tts-controls">
     <button id="tts-btn" class="tts-btn" type="button" title="본문 읽어주기" aria-label="본문 읽어주기">🔊</button>
@@ -16,7 +14,6 @@ layout: default
     </label>
   </div>
 </div>
-{% endif %}
 <article class="chapter">
   <nav class="crumbs">
     <a href="{{ '/' | relative_url }}">홈</a> ·
