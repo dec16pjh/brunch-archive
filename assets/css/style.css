@@ -148,6 +148,7 @@ body {
 .tts-settings-btn { font-size: 1rem; }
 .tts-btn:hover, .tts-settings-btn:hover { border-color: var(--accent); transform: scale(1.05); }
 .tts-btn:active, .tts-settings-btn:active { transform: scale(0.96); }
+.tts-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
 .tts-settings-panel {
   width: 220px;

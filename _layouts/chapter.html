@@ -4,6 +4,7 @@ layout: default
 <div id="tts-widget" class="tts-widget">
   <div class="tts-controls">
     <button id="tts-btn" class="tts-btn" type="button" title="본문 읽어주기" aria-label="본문 읽어주기">🔊</button>
+    <button id="tts-autonext-btn" class="tts-btn" type="button" title="다음 글 자동 재생" aria-label="다음 글 자동 재생" aria-pressed="false">🔁</button>
     <button id="tts-settings-btn" class="tts-settings-btn" type="button" title="읽기 설정" aria-label="읽기 설정">⚙</button>
   </div>
   <div id="tts-settings-panel" class="tts-settings-panel" hidden>
@@ -54,12 +55,14 @@ layout: default
   var chunkIndex = 0;
   var currentUtter = null;
 
+  var autoNextBtn = document.getElementById('tts-autonext-btn');
   var settingsBtn = document.getElementById('tts-settings-btn');
   var settingsPanel = document.getElementById('tts-settings-panel');
   var rateInput = document.getElementById('tts-rate');
   var rateVal = document.getElementById('tts-rate-val');
 
   var rate = parseFloat(localStorage.getItem('tts_rate')) || 1.0;
+  var autoNext = localStorage.getItem('tts_autonext') === '1';
 
   rateInput.value = rate;
   rateVal.textContent = rate.toFixed(1) + 'x';
@@ -114,6 +117,13 @@ layout: default
     else { btn.textContent = '⏸'; btn.title = '일시정지'; }
   }
 
+  function renderAutoNext() {
+    autoNextBtn.classList.toggle('active', autoNext);
+    autoNextBtn.setAttribute('aria-pressed', autoNext ? 'true' : 'false');
+    autoNextBtn.title = autoNext ? '다음 글 자동 재생 끄기' : '다음 글 자동 재생';
+  }
+  renderAutoNext();
+
   function stopWatchdog() {
     if (watchdogId) { clearInterval(watchdogId); watchdogId = null; }
   }
@@ -137,8 +147,18 @@ layout: default
     render();
   }
 
+  // When "다음 글 자동 재생" is on, jump to the next chapter/article and
+  // keep reading. The next page picks up automatically via a sessionStorage
+  // flag, since speech can't survive the navigation itself.
+  function goToNextChapter() {
+    var nextLink = document.querySelector('.pager-next');
+    if (!autoNext || !nextLink || !nextLink.href) { stop(); return; }
+    sessionStorage.setItem('tts_autoplay_pending', '1');
+    location.href = nextLink.href;
+  }
+
   function speakChunk(idx) {
-    if (idx >= chunks.length) { stop(); return; }
+    if (idx >= chunks.length) { goToNextChapter(); return; }
     chunkIndex = idx;
     var utter = new SpeechSynthesisUtterance(chunks[idx]);
     utter.lang = 'ko-KR';
@@ -172,6 +192,30 @@ layout: default
       render();
     }
   });
+
+  autoNextBtn.addEventListener('click', function () {
+    autoNext = !autoNext;
+    localStorage.setItem('tts_autonext', autoNext ? '1' : '0');
+    renderAutoNext();
+    if (autoNext) {
+      if (!speaking) start();
+    } else {
+      // acts as the stop button for the auto-play chain
+      sessionStorage.removeItem('tts_autoplay_pending');
+      stopWatchdog();
+      currentUtter = null;
+      synth.cancel();
+      speaking = false;
+      userPaused = false;
+      render();
+    }
+  });
+
+  // Continue reading on the page we just auto-navigated to.
+  if (sessionStorage.getItem('tts_autoplay_pending') === '1') {
+    sessionStorage.removeItem('tts_autoplay_pending');
+    start();
+  }
 
   window.addEventListener('beforeunload', function () { stopWatchdog(); synth.cancel(); });
 })();
